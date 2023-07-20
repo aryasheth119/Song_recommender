@@ -39,21 +39,20 @@ if type(df_results) == pd.DataFrame:
 	df_selection = df_results.iloc[[row_number]]
 	df_selection = df_selection[['id', 'titles', 'artists']]
 
-	st.dataframe(df_selection)
 
 	
 	#get features
 	features_df = functions.get_audio_features(id_number)
 
 
+	#merge features to song title, id, artist
+	song_with_features_df = functions.add_audio_features(df_selection, features_df)
 
 
+	#scale
 
 
-
-
-
-
+	#model predict cluster
 
 
 

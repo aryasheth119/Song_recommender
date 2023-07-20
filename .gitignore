@@ -1,0 +1,4 @@
+.DS_Store
+config.py
+*.in
+song_recommender_venv/

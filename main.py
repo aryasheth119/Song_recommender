@@ -35,18 +35,26 @@ if type(df_results) == pd.DataFrame:
 	row_number = st.radio("Pick a number", [0,1,2,3,4])
 
 	id_number = df_results.iloc[row_number]['id']
+	id_list = []
+	id_list.append(id_number)
 
 	df_selection = df_results.iloc[[row_number]]
 	df_selection = df_selection[['id', 'titles', 'artists']]
 
+	st.dataframe(df_selection)
 
+	#st.write(id_list)
 	
-	#get features
-	features_df = functions.get_audio_features(id_number)
+	# #get features
+	features_df = functions.get_audio_features(id_list)
+
+	st.dataframe(features_df)
 
 
-	#merge features to song title, id, artist
+	# #merge features to song title, id, artist
 	song_with_features_df = functions.add_audio_features(df_selection, features_df)
+
+	st.write(song_with_features_df)
 
 
 	#scale

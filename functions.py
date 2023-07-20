@@ -104,6 +104,8 @@ def get_audio_features(list_of_ids)->pd.DataFrame:
         
     features_df = pd.DataFrame.from_dict(full_dict,orient='index').reset_index(drop = True)
 
+    features_df = features_df[['id', 'danceability', 'energy', 'acousticness', 'instrumentalness', 'tempo']]
+
     return features_df
 
 
@@ -121,6 +123,7 @@ def add_audio_features(df:pd.DataFrame, audio_features_df:pd.DataFrame) -> pd.Da
     pandas dataframe with complete dataset
     """
     df_temp = df.copy()
+    
     audio_features_df_temp = audio_features_df.copy()
 
     full_df = df_temp.merge(audio_features_df_temp, on = 'id', how = 'inner')

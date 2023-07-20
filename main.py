@@ -6,96 +6,97 @@ import pickle
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 
-answer = True
-#while answer:
+
 
 #Gather user inoput
 
 st.title("Hello!")
 
+placeholder = st.empty()
+
 title = st.text_input('Please enter the song title', value = "", key='1')
 
 artist = st.text_input("Please enter artist name", value= "", key='2')
 
-if (title is not None) and (artist is not None):
-	# with st.spinner("Waiting for song title and artist"):
-	# 	time.sleep(20)
-
-
-	#get id number
-
-	#if len(title)>0 & len(artist)>0:
+if (len(title)>0) and (len(artist)>0):
 
 	df_results = functions.search_song(title, artist)
-
-
 
 	if type(df_results) == pd.DataFrame:
 
 		st.dataframe(df_results[['titles', 'artists', 'album']])
+
 		
-		row_number = st.radio("Pick a number", [0,1,2,3,4])
+		row_number = st.multiselect("Pick a number", [0,1,2,3,4])
 
-		id_number = df_results.iloc[row_number]['id']
-		id_list = []
-		id_list.append(id_number)
+		if len(row_number) > 0:
 
-		df_selection = df_results.iloc[[row_number]]
-		df_selection = df_selection[['id', 'titles', 'artists']]
+			row_number = row_number[0]
 
-		#st.dataframe(df_selection)
+			id_number = df_results.iloc[row_number]['id']
+			id_list = []
+			id_list.append(id_number)
 
-		#st.write(id_list)
-		
-		# #get features
-		features_df = functions.get_audio_features(id_list)
+			df_selection = df_results.iloc[[row_number]]
+			df_selection = df_selection[['id', 'titles', 'artists']]
 
-		#st.dataframe(features_df)
-
-
-		# #merge features to song title, id, artist
-		song_with_features_df = functions.add_audio_features(df_selection, features_df)
-
-		#st.write(song_with_features_df)
+			
+			# #get features
+			features_df = functions.get_audio_features(id_list)
 
 
-		#scale
-		with open('scalers/scaler.pickle', "rb") as file:
-		    scaler = pickle.load(file)
-
-		numeric_features = song_with_features_df[['danceability', 'energy', 'acousticness', 'instrumentalness', 'tempo']]
-
-		song_with_features_scaled =scaler.transform(numeric_features)
-
-		song_with_features_scaled_df = pd.DataFrame(song_with_features_scaled, columns = numeric_features.columns)
-
-		#st.dataframe(song_with_features_scaled_df)
+			# #merge features to song title, id, artist
+			song_with_features_df = functions.add_audio_features(df_selection, features_df)
 
 
 
-		#model predict cluster
+			#scale
+			with open('scalers/scaler.pickle', "rb") as file:
+			    scaler = pickle.load(file)
 
-		with open('models/kmeans_13.pickle', "rb") as file:
-		    kmeans = pickle.load(file)
+			numeric_features = song_with_features_df[['danceability', 'energy', 'acousticness', 'instrumentalness', 'tempo']]
 
-		cluster = kmeans.predict(song_with_features_scaled_df)
+			song_with_features_scaled =scaler.transform(numeric_features)
 
-		st.write(cluster[0])
+			song_with_features_scaled_df = pd.DataFrame(song_with_features_scaled, columns = numeric_features.columns)
 
-		clustered_songs = pd.read_csv("data/clustered_songs.csv")
-		#st.write(clustered_songs)
+			
 
-		hot_ids = clustered_songs[clustered_songs['dataset'] == 'H']['id'].tolist()
-		#st.write(hot_ids)
-		
-		if id_number in hot_ids:
-			suggestion = clustered_songs[(clustered_songs['dataset'] == 'H') & (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
-			st.write(suggestion[['titles', 'artists']].sample(5))
+			#model predict cluster
 
-		else:
-			st.write('false')
-			suggestion = clustered_songs[(clustered_songs['dataset'] == 'N')& (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
-			st.write(suggestion[['titles', 'artists']].sample(5))
+			with open('models/kmeans_13.pickle', "rb") as file:
+			    kmeans = pickle.load(file)
+
+			cluster = kmeans.predict(song_with_features_scaled_df)
+
+			clustered_songs = pd.read_csv("data/clustered_songs.csv")
+
+			hot_ids = clustered_songs[clustered_songs['dataset'] == 'H']['id'].tolist()
+
+
+			
+			if id_number in hot_ids:
+				suggestion = clustered_songs[(clustered_songs['dataset'] == 'H') & (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
+				suggestion.reset_index(drop = True, inplace=True)
+				st.markdown("Here are some songs to check out")
+				st.write(suggestion[['titles', 'artists']].sample(5))
+
+			else:
+				suggestion = clustered_songs[(clustered_songs['dataset'] == 'N')& (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
+				suggestion.reset_index(drop = True, inplace=True)
+				st.markdown("Here are some songs to check out")
+				st.write(suggestion[['titles', 'artists']].sample(5))
+
+			
+			response = st.selectbox("Would you like to search for another song?", ['', "Yes, please", "No thanks"])
+
+			if response == "Yes, please":
+				st.markdown('Please enter a new song')
+
+			elif response == "No thanks":
+				st.markdown("OK, see you soon")
+
+
 
 
 	else:
@@ -103,16 +104,7 @@ if (title is not None) and (artist is not None):
 
 
 
-	response = st.radio("Would you like to search for another song?", ["Yes, please", "No thanks"])
 
-	if response == "Yes, please":
-		answer = True
-
-	else:
-		answer = False
-
-		
-		st.markdown("OK, see you soon")
 
 
 

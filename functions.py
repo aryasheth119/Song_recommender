@@ -54,10 +54,12 @@ def search_song(title:str, artist:str, limit=5) -> str:
             df_results = (pd.DataFrame.from_dict(select_dict,
                                                  orient='index',
                                                  columns = ['titles', 'artists', 'album'])
-                          .reset_index(names = 'id',
-                                       drop=False)
+                          #.reset_index(names = 'id',
+                           #            drop=False)
                           .drop_duplicates(subset = ['titles', 'artists', 'album'],
                                            keep='first')
+                          .reset_index(names = 'id',
+                                       drop=False)
                          )
             
             return(df_results)

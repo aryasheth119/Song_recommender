@@ -41,7 +41,8 @@ def search_song(title:str, artist:str, limit=5) -> str:
         #search for song
         results = sp.search(q="artist:" + artist + " track:" + title, limit=limit)
     
-        if len(results['tracks']['items']) > 1:
+        if limit > 1:
+        #if len(results['tracks']['items']) > 1:
             #create a dataframe with the results
             select_dict = {}
             for i in range(len(results['tracks']['items'])):
@@ -52,27 +53,29 @@ def search_song(title:str, artist:str, limit=5) -> str:
                 
             df_results = (pd.DataFrame.from_dict(select_dict,
                                                  orient='index',
-                                                 columns = ['title', 'artist', 'album'])
+                                                 columns = ['titles', 'artists', 'album'])
                           .reset_index(names = 'id',
                                        drop=False)
-                          .drop_duplicates(subset = ['title', 'artist', 'album'],
+                          .drop_duplicates(subset = ['titles', 'artists', 'album'],
                                            keep='first')
                          )
             
-            display(df_results[['title', 'artist', 'album']])
-                
-            row_number = int(input('Please enter the number of the song you are looking for'))
+            return(df_results)
 
-             id_number = df_results.iloc[row_number]['id']
-    
-            return id_number
-    
         else:
             return results['tracks']['items'][0]['id']
         
     except IndexError:
         return 'Not found'
 
+
+# def get_song_choice(df):
+        
+#     row_number = int(input('Please enter the number of the song you are looking for'))
+
+#     id_number = df_results.iloc[row_number]['id']
+
+#     return id_number
 
 
 def get_audio_features(list_of_ids)->pd.DataFrame:
@@ -125,7 +128,7 @@ def add_audio_features(df:pd.DataFrame, audio_features_df:pd.DataFrame) -> pd.Da
     return full_df
 
 
-def find_cluster():
+
 	
 
 

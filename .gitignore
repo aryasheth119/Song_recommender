@@ -2,3 +2,5 @@
 config.py
 *.in
 song_recommender_venv/
+.cache
+__pycache__/

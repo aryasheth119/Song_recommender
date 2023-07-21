@@ -94,6 +94,7 @@ six==1.16.0
     # via python-dateutil
 smmap==5.0.0
     # via gitdb
+spotipy==2.22.1
 streamlit==1.24.1
     # via -r requirements.in
 tenacity==8.2.2

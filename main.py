@@ -10,24 +10,27 @@ from sklearn.cluster import KMeans
 
 #Gather user inoput
 
-st.title("Hello!")
+st.title("Welcome to SpotiFind!")
 
-placeholder = st.empty()
+#placeholder = st.empty()
 
-title = st.text_input('Please enter the song title', value = "", key='1')
+title = st.text_input('Please enter a song title', value = "", key='1')
 
-artist = st.text_input("Please enter artist name", value= "", key='2')
+artist = st.text_input("Please enter the artist's name", value= "", key='2')
 
 if (len(title)>0) and (len(artist)>0):
 
 	df_results = functions.search_song(title, artist)
 
-	if type(df_results) == pd.DataFrame:
+	#if type(df_results) == pd.DataFrame:
+	if df_results.shape[0] > 0:
 
 		st.dataframe(df_results[['titles', 'artists', 'album']])
 
-		
-		row_number = st.multiselect("Pick a number", [0,1,2,3,4])
+		n_list = [i for i in range(df_results.shape[0])]
+		#st.write(n_list)
+
+		row_number = st.multiselect("Pick a number", n_list)
 
 		if len(row_number) > 0:
 
@@ -77,30 +80,31 @@ if (len(title)>0) and (len(artist)>0):
 			
 			if id_number in hot_ids:
 				suggestion = clustered_songs[(clustered_songs['dataset'] == 'H') & (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
-				suggestion.reset_index(drop = True, inplace=True)
-				st.markdown("Here are some songs to check out")
-				st.write(suggestion[['titles', 'artists']].sample(5))
+				suggestion = suggestion.reset_index(drop = True)
+				st.markdown("Here are some songs to check out:")
+				st.dataframe(suggestion[['titles', 'artists']].sample(5))
 
 			else:
 				suggestion = clustered_songs[(clustered_songs['dataset'] == 'N')& (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
-				suggestion.reset_index(drop = True, inplace=True)
-				st.markdown("Here are some songs to check out")
-				st.write(suggestion[['titles', 'artists']].sample(5))
+				suggestion = suggestion.reset_index(drop = True)
+				st.markdown("Here are some songs to check out:")
+				st.dataframe(suggestion[['titles', 'artists']].sample(5))
 
 			
-			response = st.selectbox("Would you like to search for another song?", ['', "Yes, please", "No thanks"])
+			st.markdown("Try again for more suggestions")
+			#response = st.selectbox("Would you like to search for another song?", ['', "Yes, please", "No thanks"])
 
-			if response == "Yes, please":
-				st.markdown('Please enter a new song')
+			#if response == "Yes, please":
+				#st.markdown('Please enter a new song')
 
-			elif response == "No thanks":
-				st.markdown("OK, see you soon")
+			#elif response == "No thanks":
+				#st.markdown("OK, see you soon")
 
 
 
 
 	else:
-		st.markdown("Sorry, your song wasn't found on Spotify")
+		st.markdown("Sorry, your song wasn't found on Spotify. Please try another song.")
 
 
 

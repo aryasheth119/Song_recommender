@@ -8,6 +8,7 @@ import time
 #input credentials
 from config import *
 
+
 def search_song(title:str, artist:str, limit=5) -> str:
     """
     Function takes two values: title and artist and then searches for it in Spotify
@@ -25,7 +26,7 @@ def search_song(title:str, artist:str, limit=5) -> str:
     Output
     string with Spotify song id number
     """
-    
+
     #Initialize SpotiPy with user credentias #
     sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=CLIENT_ID,
                                                            client_secret=CLIENT_SECRET))

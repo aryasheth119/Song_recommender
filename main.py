@@ -8,9 +8,17 @@ from sklearn.cluster import KMeans
 
 
 
-#Gather user inoput
+#Gather user inoput#
 
-st.title("Welcome to SpotiFind!")
+def make_clickable(link):
+    # target _blank to open new window
+    # extract clickable text to display for your link
+    #text = link.split('=')[1]
+    return f'<a target="_blank" href="{link}">Click here</a>'
+
+#st.title("Welcome to SpotiFind!")
+new_title = '<p style="font-family:arial; color:#40D15D; font-size: 42px;"><b>Welcome to SpotiFind!</b></p>'
+st.markdown(new_title, unsafe_allow_html=True)
 
 #placeholder = st.empty()
 
@@ -80,15 +88,30 @@ if (len(title)>0) and (len(artist)>0):
 			
 			if id_number in hot_ids:
 				suggestion = clustered_songs[(clustered_songs['dataset'] == 'H') & (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
-				suggestion = suggestion.reset_index(drop = True)
+				suggestion['url'] = suggestion['id'].apply(lambda x: "https://open.spotify.com/track/" + x)
+				#st.write(suggestion)
+				#link is the column with hyperlinks
+				suggestion['url'] = suggestion['url'].apply(make_clickable)
+				suggestion = suggestion[['titles', 'artists','url']].sample(5)
+				suggestion = suggestion.to_html(escape=False)
 				st.markdown("Here are some songs to check out:")
-				st.dataframe(suggestion[['titles', 'artists']].sample(5))
+				st.write(suggestion, unsafe_allow_html=True)
+
+
+				#suggestion = suggestion.reset_index(drop = True)
+				
+				
+				#st.data_editor(suggestion, column_config={"id": st.column_config.LinkColumn("url")}, hide_index=True)
 
 			else:
 				suggestion = clustered_songs[(clustered_songs['dataset'] == 'N')& (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
-				suggestion = suggestion.reset_index(drop = True)
+				suggestion['url'] = suggestion['id'].apply(lambda x: "https://open.spotify.com/track/" + x)				#ids = clustered_songs[(clustered_songs['dataset'] == 'N')& (clustered_songs['cluster'] == cluster[0]) & ~(clustered_songs['id'] == id_number)]
+				#suggestion['url'] = 'www.open.spotify.com/track/' + ids
+				suggestion['url'] = suggestion['url'].apply(make_clickable)
+				suggestion = suggestion[['titles', 'artists','url']].sample(5)
+				suggestion = suggestion.to_html(escape=False)
 				st.markdown("Here are some songs to check out:")
-				st.dataframe(suggestion[['titles', 'artists']].sample(5))
+				st.write(suggestion, unsafe_allow_html=True)
 
 			
 			st.markdown("Try again for more suggestions")
